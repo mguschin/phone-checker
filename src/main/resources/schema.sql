@@ -5,8 +5,6 @@ create table if not exists table1
 	created timestamp default CURRENT_TIMESTAMP not null
 );
 
-alter table table1 owner to postgres;
-
 create unique index if not exists table1__i1
 	on table1 (phone);
 
@@ -17,15 +15,15 @@ create table if not exists table2
 	created timestamp default CURRENT_TIMESTAMP not null
 );
 
-alter table table2 owner to postgres;
-
 create unique index if not exists table2__i1
 	on table2 (phone);
 
-INSERT INTO table1 (phone) VALUES ('79876543211');
-INSERT INTO table1 (phone) VALUES ('79876543213');
+create table if not exists requestlog
+(
+	id bigserial not null constraint requestlog_pk primary key,
+	phone varchar(11) not null,
+	requestid varchar2(20) not null,
+	result varchar2(10),
+	created timestamp default CURRENT_TIMESTAMP not null
+);
 
-INSERT INTO table2 (phone) VALUES ('9876543213');
-INSERT INTO table2 (phone) VALUES ('9876543212');
-
-commit;

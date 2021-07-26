@@ -18,17 +18,17 @@ import com.zaxxer.hikari.HikariDataSource;
 @Configuration
 @ComponentScan("ru.mguschin.phonenumberchecker.service")
 public class PhoneCheckerConfig {
-
+/*
     @Bean
-    public DataSource pgsqlDataSource() {
+    public DataSource h2sqlDBSource() {
 
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:postgresql://localhost:5432/postgres");
-        config.setUsername("postgres");
-        config.setPassword("mysecretpassword");
+        config.setJdbcUrl("jdbc:h2:mem:phonechecker");
+        config.setUsername("sa");
+        config.setPassword("");
 
         HikariDataSource ds = new HikariDataSource(config);
 
         return ds;
-    }
+    }*/
 }

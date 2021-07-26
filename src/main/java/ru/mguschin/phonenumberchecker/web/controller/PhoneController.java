@@ -23,7 +23,7 @@ public class PhoneController {
     @RequestMapping(value = "check", method = RequestMethod.GET)
     public String check(
             @RequestParam(name = "phone", required = true) @Pattern(regexp = "^7\\d{10}$", message = "phone must be in format 7XXXXXXXXXX") String phone,
-            @RequestParam(name = "requestid", required = true) @Pattern(regexp = "^[a-zA-Z0-9_-]{1,20}$", message = "requestId must contain 1 to 20 chars") String requestId) {
+            @RequestParam(name = "requestid", required = true) @Pattern(regexp = "^[a-zA-Z0-9]{1,20}$", message = "requestId must contain up to 20 chars") String requestId) {
 
         return phoneService.check(phone, requestId);
     }
@@ -34,7 +34,9 @@ public class PhoneController {
         if (e instanceof ValidationException || e instanceof MissingRequestValueException)
             return new ResponseEntity<>("Invalid parameters: " + e.getMessage(), HttpStatus.BAD_REQUEST);
 
-        return new ResponseEntity<>("Internal error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        System.out.println(e.getMessage());
+
+        return new ResponseEntity<>("Internal error.", HttpStatus.INTERNAL_SERVER_ERROR);
 
     }
 }

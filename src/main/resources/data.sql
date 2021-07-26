@@ -1,0 +1,7 @@
+INSERT INTO table1 (phone) VALUES ('79876543211');
+INSERT INTO table1 (phone) VALUES ('79876543213');
+
+INSERT INTO table2 (phone) VALUES ('9876543213');
+INSERT INTO table2 (phone) VALUES ('9876543212');
+
+commit;
