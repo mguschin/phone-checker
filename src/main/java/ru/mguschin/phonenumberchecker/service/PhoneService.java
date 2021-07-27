@@ -39,11 +39,7 @@ public class PhoneService {
         @Override
         public Integer call() throws Exception
         {
-            try {
-                return phoneDao.phoneCheck(source, phone, requestId);
-            } catch (Exception e) {
-                return new Integer(-1);
-            }
+            return phoneDao.phoneCheck(source, phone, requestId);
         }
     }
 
@@ -63,42 +59,32 @@ public class PhoneService {
         try {
             resultList = executor.invokeAll(taskList, 10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Execution interrupted.");
         } finally {
             executor.shutdown();
         }
 
-        Integer resultA;
-        Integer resultB;
+        Integer resultA = -1;
+        Integer resultB = -1;
 
         try {
             if (resultList != null) {
                 resultA = resultList.get(0).get();
                 resultB = resultList.get(1).get();
-            } else {
-                resultA = -1;
-                resultB = -1;
             }
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-
-            resultA = -1;
-            resultB = -1;
+            throw new RuntimeException("DB Query failed: " + e.getMessage());
         }
 
-        if (resultA.intValue() >= 0 && resultB.intValue() >= 0) {
-            switch (resultA.intValue() + resultB.intValue()) {
-                case 0:
-                    result = "ACCEPT";
-                    break;
-                case 1:
-                    result = "CHALLENGE";
-                    break;
-                default:
-                    result = "DECLINE";
-            }
-        } else {
-            throw new RuntimeException("DB Query failed.");
+        switch (resultA.intValue() + resultB.intValue()) {
+            case 0:
+                result = "ACCEPT";
+                break;
+            case 1:
+                result = "CHALLENGE";
+                break;
+            default:
+                result = "DECLINE";
         }
 
         return result;
