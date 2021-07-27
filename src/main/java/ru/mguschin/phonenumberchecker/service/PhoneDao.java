@@ -22,13 +22,11 @@ public class PhoneDao {
         jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
-    public Integer phoneCheck(String phone, String requestId) {
+    public Integer phoneCheck(String source, String phone, String requestId) {
 
-        SqlParameterSource namedParameters = new MapSqlParameterSource().addValue("p1", phone).addValue("p2", phone.substring(1));
+        SqlParameterSource namedParameters = new MapSqlParameterSource().addValue("p1", phone);
 
-        String query = "select count(*) as RESULT from ((select 1 as RESULT from TABLE1 where PHONE = :p1 limit 1) union all (select 1 from TABLE2 where PHONE = :p2 limit 1)) as t";
-        //String queryA = "select 1 from TABLE1 where PHONE = :p1";
-        //String queryB = "select 1 from TABLE2 where PHONE = :p2";
+        String query = "select count(*) from " + source + " where PHONE = :p1 limit 1";
 
         Integer res = jdbcTemplate.queryForObject(query, namedParameters, Integer.class);
 

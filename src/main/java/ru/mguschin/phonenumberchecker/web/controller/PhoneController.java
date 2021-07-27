@@ -25,7 +25,15 @@ public class PhoneController {
             @RequestParam(name = "phone", required = true) @Pattern(regexp = "^7\\d{10}$", message = "phone must be in format 7XXXXXXXXXX") String phone,
             @RequestParam(name = "requestid", required = true) @Pattern(regexp = "^[a-zA-Z0-9]{1,20}$", message = "requestId must contain up to 20 chars") String requestId) {
 
-        return phoneService.check(phone, requestId);
+        String result = "";
+
+        try {
+            result = phoneService.check(phone, requestId);
+        } finally{
+            phoneService.logRequest(phone, requestId, result);
+        }
+
+        return result;
     }
 
     @ExceptionHandler({Exception.class, ValidationException.class, MissingRequestValueException.class})
