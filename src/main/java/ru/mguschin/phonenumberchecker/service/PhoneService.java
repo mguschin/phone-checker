@@ -20,6 +20,8 @@ public class PhoneService {
 
     @Resource
     private final PhoneDao phoneDao;
+    @Resource
+    private final ExecutorService executor;
 
     enum TaskResult {
         FOUND, NOT_FOUND;
@@ -57,14 +59,12 @@ public class PhoneService {
     }
 
     @Autowired
-    PhoneService (PhoneDao phoneDao) {
+    PhoneService (PhoneDao phoneDao, ExecutorService executor) {
         this.phoneDao = phoneDao;
+        this.executor = executor;
     }
 
     public CheckResult check(String phone, String requestId) {
-
-        ExecutorService executor = (ExecutorService) Executors.newFixedThreadPool(2);
-
         List<Task> taskList = new ArrayList<Task>();
 
         taskList.add(new Task(ListTable.LIST1, phone, requestId));

@@ -4,31 +4,25 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ComponentScan;
 
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
+import org.springframework.core.Ordered;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.LinkedBlockingDeque;
 
 @Configuration
 @ComponentScan("ru.mguschin.phonenumberchecker.service")
 public class PhoneCheckerConfig {
-/*
+
     @Bean
-    public DataSource h2sqlDBSource() {
-
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:h2:mem:phonechecker");
-        config.setUsername("sa");
-        config.setPassword("");
-
-        HikariDataSource ds = new HikariDataSource(config);
-
-        return ds;
-    }*/
+    public ExecutorService getThreadPool() {
+        return new ThreadPoolExecutor(2, 5, 10, TimeUnit.SECONDS, new LinkedBlockingDeque<>());
+    }
 }
