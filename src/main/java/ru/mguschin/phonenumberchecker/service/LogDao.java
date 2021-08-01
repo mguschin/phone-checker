@@ -18,12 +18,12 @@ public class LogDao {
         jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
-    public void logRequest(String phone, String requestId, String result) {
+    public void logRequest(String phone, String requestId, CheckResult result) {
 
         SqlParameterSource namedParameters = new MapSqlParameterSource()
                 .addValue("phone", phone)
                 .addValue("requestid", requestId)
-                .addValue("result", result);
+                .addValue("result", result.toString());
 
         String query = "insert into requestlog (phone, requestid, result) values (:phone, :requestid, :result)";
 

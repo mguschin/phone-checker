@@ -1,13 +1,13 @@
 package ru.mguschin.phonenumberchecker.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
 import javax.annotation.Resource;
 
 import java.lang.InterruptedException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -19,79 +19,79 @@ import java.util.List;
 public class PhoneService {
 
     @Resource
-    private PhoneDao phoneDao;
+    private final PhoneDao phoneDao;
 
-    @Resource
-    private LogDao logDao;
+    enum TaskResult {
+        FOUND, NOT_FOUND;
+    }
 
-    class Task implements Callable<Integer>
+    class Task implements Callable<TaskResult>
     {
-        private final String source;
+        private final ListTable listTable;
         private final String phone;
         private final String requestId;
 
-        public Task(String source, String phone, String requestId) {
-            this.source = source;
+        public Task(ListTable listTable, String phone, String requestId) {
+            this.listTable = listTable;
             this.phone = phone;
             this.requestId = requestId;
         }
 
         @Override
-        public Integer call() throws Exception
+        public TaskResult call() throws Exception
         {
-            return phoneDao.phoneCheck(source, phone, requestId);
+            TaskResult r = null;
+
+            try {
+                Integer check = phoneDao.phoneCheck(listTable, phone, requestId);
+
+                r = (check > 0) ? TaskResult.FOUND : TaskResult.NOT_FOUND;
+            } catch (Exception e) {
+                r = TaskResult.NOT_FOUND;
+
+                System.out.println("Error in thread " + listTable.getTableName() + ": " + e.getMessage());
+            }
+
+            return r;
         }
     }
 
-    public String check(String phone, String requestId) {
+    @Autowired
+    PhoneService (PhoneDao phoneDao) {
+        this.phoneDao = phoneDao;
+    }
 
-        String result = "";
+    public CheckResult check(String phone, String requestId) {
 
         ExecutorService executor = (ExecutorService) Executors.newFixedThreadPool(2);
 
         List<Task> taskList = new ArrayList<Task>();
 
-        taskList.add(new Task("TABLE1", phone, requestId));
-        taskList.add(new Task("TABLE2", phone.substring(1), requestId));
+        taskList.add(new Task(ListTable.LIST1, phone, requestId));
+        taskList.add(new Task(ListTable.LIST2, phone.substring(1), requestId));
 
-        List<Future<Integer>> resultList = null;
+        List<Future<TaskResult>> resultList = null;
 
         try {
             resultList = executor.invokeAll(taskList, 10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            throw new RuntimeException("Execution interrupted.");
-        } finally {
-            executor.shutdown();
+            System.out.println("Threads interruted: " + e.getMessage());
         }
 
-        Integer resultA = -1;
-        Integer resultB = -1;
+        CheckResult result = CheckResult.DECLINE;
 
         try {
-            if (resultList != null) {
-                resultA = resultList.get(0).get();
-                resultB = resultList.get(1).get();
+            if (resultList.get(0).get() == TaskResult.NOT_FOUND && resultList.get(1).get() == TaskResult.NOT_FOUND) {
+                result = CheckResult.ACCEPT;
+            } else if (resultList.get(0).get() == TaskResult.NOT_FOUND && resultList.get(1).get() == TaskResult.FOUND ||
+                       resultList.get(0).get() == TaskResult.FOUND && resultList.get(1).get() == TaskResult.NOT_FOUND
+                    ) {
+                result = CheckResult.CHALLENGE;
             }
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException("DB Query failed: " + e.getMessage());
         }
 
-        switch (resultA.intValue() + resultB.intValue()) {
-            case 0:
-                result = "ACCEPT";
-                break;
-            case 1:
-                result = "CHALLENGE";
-                break;
-            default:
-                result = "DECLINE";
-        }
-
         return result;
-    }
-
-    @Transactional
-    public void logRequest (String phone, String requestId, String result) {
-        logDao.logRequest(phone, requestId, result);
     }
 }

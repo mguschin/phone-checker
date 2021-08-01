@@ -22,64 +22,64 @@ public class PhoneControllerTest {
 
     @Test
     public void checkReturnAccept() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/api/v1/phone/check?phone=79876543210&requestid=abc123").accept(MediaType.TEXT_HTML))
+        mvc.perform(MockMvcRequestBuilders.get("/api/v1/phone/check?phone=79876543210&requestid=abc123").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("ACCEPT")));
+                .andExpect(content().string(equalTo("{\"result\":\"ACCEPT\"}")));
     }
 
     @Test
     public void checkReturnChallengeSideA() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/api/v1/phone/check?phone=79876543211&requestid=abc123").accept(MediaType.TEXT_HTML))
+        mvc.perform(MockMvcRequestBuilders.get("/api/v1/phone/check?phone=79876543211&requestid=abc123").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("CHALLENGE")));
+                .andExpect(content().string(equalTo("{\"result\":\"CHALLENGE\"}")));
     }
 
     @Test
     public void checkReturnChallengeSideB() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/api/v1/phone/check?phone=79876543212&requestid=abc123").accept(MediaType.TEXT_HTML))
+        mvc.perform(MockMvcRequestBuilders.get("/api/v1/phone/check?phone=79876543212&requestid=abc123").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("CHALLENGE")));
+                .andExpect(content().string(equalTo("{\"result\":\"CHALLENGE\"}")));
     }
 
     @Test
     public void checkReturnDecline() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/api/v1/phone/check?phone=79876543213&requestid=abc123").accept(MediaType.TEXT_HTML))
+        mvc.perform(MockMvcRequestBuilders.get("/api/v1/phone/check?phone=79876543213&requestid=abc123").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("DECLINE")));
+                .andExpect(content().string(equalTo("{\"result\":\"DECLINE\"}")));
     }
 
     @Test
     public void checkNoParameters() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/api/v1/phone/check").accept(MediaType.TEXT_HTML))
+        mvc.perform(MockMvcRequestBuilders.get("/api/v1/phone/check").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     public void checkBlankParameters() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/api/v1/phone/check?phone=&requestid=").accept(MediaType.TEXT_HTML))
+        mvc.perform(MockMvcRequestBuilders.get("/api/v1/phone/check?phone=&requestid=").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     public void checkNoPhone() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/api/v1/phone/check?requestid=abc123").accept(MediaType.TEXT_HTML))
+        mvc.perform(MockMvcRequestBuilders.get("/api/v1/phone/check?requestid=abc123").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     public void checkNoRequestId() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/api/v1/phone/check?phone=79876543210").accept(MediaType.TEXT_HTML))
+        mvc.perform(MockMvcRequestBuilders.get("/api/v1/phone/check?phone=79876543210").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     public void checkInvalidPhone() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/api/v1/phone/check?phone=7A87654321&requestid=abc123").accept(MediaType.TEXT_HTML))
+        mvc.perform(MockMvcRequestBuilders.get("/api/v1/phone/check?phone=7A87654321&requestid=abc123").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
     public void checkInvalidrequestId() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/api/v1/phone/check?phone=79876543210&requestid=abc123%").accept(MediaType.TEXT_HTML))
+        mvc.perform(MockMvcRequestBuilders.get("/api/v1/phone/check?phone=79876543210&requestid=abc123%").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 }
