@@ -52,7 +52,7 @@ public class PhoneService {
             try {
                 Integer check = phoneDao.phoneCheck(listTable, phone, requestId);
 
-                logger.error("Task [table={} phone={} requestId={}] returned {}.", listTable.getTableName(), phone, requestId, check);
+                logger.info("Task [table={} phone={} requestId={}] returned {}.", listTable.getTableName(), phone, requestId, check);
 
                 r = (check > 0) ? TaskResult.FOUND : TaskResult.NOT_FOUND;
             } catch (Exception e) {
