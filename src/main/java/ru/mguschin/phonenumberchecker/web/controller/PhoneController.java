@@ -1,5 +1,8 @@
 package ru.mguschin.phonenumberchecker.web.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.MissingRequestValueException;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.validation.ValidationException;
 
@@ -19,6 +23,8 @@ import ru.mguschin.phonenumberchecker.service.LogService;
 @RequestMapping("/api/v1/phone/")
 @Validated
 public class PhoneController {
+
+    private static final Logger logger = LoggerFactory.getLogger(PhoneController.class);
 
     @Resource
     private final PhoneService phoneService;
@@ -41,10 +47,12 @@ public class PhoneController {
         try {
             result = phoneService.check(phone, requestId);
         } finally{
+            logger.info("Request [id={} phone={}] Response [result={}]", requestId, phone, result);
+
             try {
                 logService.logRequest(phone, requestId, result);
             } catch (Exception e) {
-                System.out.println("DB log query failed: " + e.getMessage());
+                logger.error("Unable to log request [id={} phone={}] Response [result={}] - {}", requestId, phone, result, e.getMessage());
             }
         }
 
@@ -56,18 +64,21 @@ public class PhoneController {
     }
 
     @ExceptionHandler({Exception.class, ValidationException.class, MissingRequestValueException.class})
-    public ResponseEntity<ErrorResponse> handleException(Exception e) {
+    public ResponseEntity<ErrorResponse> handleException(HttpServletRequest request,Exception e) {
 
         ErrorResponse response = new ErrorResponse();
 
         if (e instanceof ValidationException || e instanceof MissingRequestValueException) {
+
+            logger.error("Invalid parameters [{}] - {}", request.getQueryString(), e.getMessage());
+
             response.setErrorCode(1);
             response.setErrorMessage("Invalid parameters: " + e.getMessage());
 
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
-        System.out.println(e.getMessage());
+        logger.error("Internal error [" + request.getQueryString() + "].", e);
 
         response.setErrorCode(500);
         response.setErrorMessage("Internal error.");

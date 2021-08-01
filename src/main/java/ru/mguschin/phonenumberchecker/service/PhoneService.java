@@ -1,7 +1,10 @@
 package ru.mguschin.phonenumberchecker.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.mguschin.phonenumberchecker.web.controller.PhoneController;
 
 import javax.annotation.Resource;
 
@@ -17,6 +20,8 @@ import java.util.List;
 
 @Service
 public class PhoneService {
+
+    private static final Logger logger = LoggerFactory.getLogger(PhoneService.class);
 
     @Resource
     private final PhoneDao phoneDao;
@@ -47,11 +52,13 @@ public class PhoneService {
             try {
                 Integer check = phoneDao.phoneCheck(listTable, phone, requestId);
 
+                logger.error("Task [table={} phone={} requestId={}] returned {}.", listTable.getTableName(), phone, requestId, check);
+
                 r = (check > 0) ? TaskResult.FOUND : TaskResult.NOT_FOUND;
             } catch (Exception e) {
                 r = TaskResult.NOT_FOUND;
 
-                System.out.println("Error in thread " + listTable.getTableName() + ": " + e.getMessage());
+                logger.error("Task [table={} phone={} requestId={}] returned an error - {}", listTable.getTableName(), phone, requestId, e.getMessage());
             }
 
             return r;
@@ -75,7 +82,7 @@ public class PhoneService {
         try {
             resultList = executor.invokeAll(taskList, 10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            System.out.println("Threads interruted: " + e.getMessage());
+            logger.error("Thread was interrupted - " + e.getMessage());
         }
 
         CheckResult result = CheckResult.DECLINE;
@@ -89,7 +96,9 @@ public class PhoneService {
                 result = CheckResult.CHALLENGE;
             }
         } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException("DB Query failed: " + e.getMessage());
+            logger.error("Thread was interrupted - " + e.getMessage());
+
+            throw new RuntimeException("Check failed: " + e.getMessage());
         }
 
         return result;
