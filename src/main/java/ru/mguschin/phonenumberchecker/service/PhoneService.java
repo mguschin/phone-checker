@@ -43,8 +43,7 @@ public class PhoneService {
         }
 
         @Override
-        public TaskResult call() throws Exception
-        {
+        public TaskResult call() throws Exception {
             TaskResult r = null;
 
             try {

@@ -23,12 +23,9 @@ import ru.mguschin.phonenumberchecker.service.LogService;
 @RequestMapping("/api/v1/phone/")
 @Validated
 public class PhoneController {
-
     private static final Logger logger = LoggerFactory.getLogger(PhoneController.class);
 
-    @Resource
     private final PhoneService phoneService;
-    @Resource
     private final LogService logService;
 
     @Autowired
@@ -84,6 +81,5 @@ public class PhoneController {
         response.setErrorMessage("Internal error.");
 
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-
     }
 }
