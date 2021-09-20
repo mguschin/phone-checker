@@ -23,9 +23,7 @@ public class PhoneService {
 
     private static final Logger logger = LoggerFactory.getLogger(PhoneService.class);
 
-    @Resource
     private final PhoneDao phoneDao;
-    @Resource
     private final ExecutorService executor;
 
     enum TaskResult {

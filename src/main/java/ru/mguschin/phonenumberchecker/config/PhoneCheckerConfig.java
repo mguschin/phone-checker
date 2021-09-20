@@ -23,6 +23,6 @@ public class PhoneCheckerConfig {
 
     @Bean
     public ExecutorService getThreadPool() {
-        return new ThreadPoolExecutor(2, 5, 10, TimeUnit.SECONDS, new LinkedBlockingDeque<>());
+        return new ThreadPoolExecutor(2, 10, 10, TimeUnit.SECONDS, new LinkedBlockingDeque<>());
     }
 }
